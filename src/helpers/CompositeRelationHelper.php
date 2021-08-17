@@ -1,6 +1,6 @@
 <?php
 
-namespace cranky4\changeLogBehavior\helpers;
+namespace antonyz89\changeLogBehavior\helpers;
 
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;

@@ -1,6 +1,6 @@
 <?php
 
-namespace cranky4\changeLogBehavior;
+namespace antonyz89\changeLogBehavior;
 
 use yii\base\Behavior;
 use yii\base\Event;

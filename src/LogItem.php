@@ -1,8 +1,8 @@
 <?php
 
-namespace cranky4\changeLogBehavior;
+namespace antonyz89\changeLogBehavior;
 
-use cranky4\changeLogBehavior\helpers\CompositeRelationHelper;
+use antonyz89\changeLogBehavior\helpers\CompositeRelationHelper;
 use yii\behaviors\TimestampBehavior;
 use yii\console\Application;
 use yii\db\ActiveRecord;

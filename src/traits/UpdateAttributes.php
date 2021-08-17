@@ -6,9 +6,9 @@
  * Time: 13:25
  */
 
-namespace cranky4\changeLogBehavior\traits;
+namespace antonyz89\changeLogBehavior\traits;
 
-use cranky4\changeLogBehavior\LogItem;
+use antonyz89\changeLogBehavior\LogItem;
 
 /**
  * If you want to use change log with ActiveRecord::updateAttributes()
