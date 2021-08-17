@@ -98,6 +98,7 @@ class ListWidget extends Widget
                 'class' => 'table-responsive',
             ],
             'columns' => [
+                'module',
                 [
                     'attribute' => 'createdAt',
                     'format' => 'datetime',

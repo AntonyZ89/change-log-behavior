@@ -6,6 +6,7 @@ use cranky4\changeLogBehavior\helpers\CompositeRelationHelper;
 use yii\behaviors\TimestampBehavior;
 use yii\console\Application;
 use yii\db\ActiveRecord;
+use Yii;
 
 /**
  * This is the model class for table "log_event".
@@ -17,7 +18,8 @@ use yii\db\ActiveRecord;
  * @property string $createdAt
  * @property string $type
  * @property integer $userId
- * @property \yii\db\ActiveQuery $user
+ * @property string $module
+ * @property yii\db\ActiveQuery $user
  * @property string $hostname
  *
  * example of log event creation:
@@ -63,7 +65,7 @@ class LogItem extends ActiveRecord
     {
         return [
             [['relatedObjectId', 'userId'], 'integer'],
-            //[['data'], 'string'],
+            [['module'], 'string'],
             [['createdAt', 'relatedObject', 'data'], 'safe'],
             [['relatedObjectType', 'type', 'hostname'], 'string', 'max' => 255],
         ];
@@ -81,6 +83,7 @@ class LogItem extends ActiveRecord
             'data' => 'Data',
             'createdAt' => 'Created At',
             'type' => 'Type',
+            'module' => 'Module',
             'userId' => 'User ID',
             'hostname' => 'Hostname',
         ];
@@ -94,12 +97,12 @@ class LogItem extends ActiveRecord
      */
     public function beforeSave($insert)
     {
-        if (empty($this->userId) && !(\Yii::$app instanceof Application) && !\Yii::$app->user->isGuest) {
-            $this->userId = \Yii::$app->user->id;
+        if (empty($this->userId) && !(Yii::$app instanceof Application) && !Yii::$app->user->isGuest) {
+            $this->userId = Yii::$app->user->id;
         }
 
-        if (empty($this->hostname) && \Yii::$app->request->hasMethod('getUserIP')) {
-            $this->hostname = \Yii::$app->request->getUserIP();
+        if (empty($this->hostname) && Yii::$app->request->hasMethod('getUserIP')) {
+            $this->hostname = Yii::$app->request->getUserIP();
         }
 
         if (!empty($this->data) && is_array($this->data)) {
@@ -110,6 +113,8 @@ class LogItem extends ActiveRecord
             $this->relatedObjectType = CompositeRelationHelper::resolveObjectType($this->relatedObject);
             $this->relatedObjectId = $this->relatedObject->primaryKey;
         }
+
+        $this->module = Yii::$app->id;
 
         return parent::beforeSave($insert);
     }

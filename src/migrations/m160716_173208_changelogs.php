@@ -17,6 +17,7 @@ class m160716_173208_changelogs extends Migration
             'createdAt' => $this->integer(),
             'type' => $this->string(191)->null(),
             'userId' => $this->integer(),
+            'module' => $this->string(50),
             'hostname' => $this->string(191)
         ], 'ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 
