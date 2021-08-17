@@ -2,15 +2,17 @@
 
 Simple behavior for your yii2-models 
 
+**forked from [Cranky4/change-log-behavior](https://github.com/Cranky4/change-log-behavior)**
+
 ## Installation
 
 1- Install package via composer:
 ```
-composer require cranky4/change-log-behavior "*"
+composer require antonyz89/change-log-behavior "*"
 ```
 2- Run migrations:
 ```
-yii migrate --migrationPath=@vendor/cranky4/change-log-behavior/src/migrations
+yii migrate --migrationPath=@vendor/antonyz89/change-log-behavior/src/migrations
 ```
 
 ## Usage
@@ -75,7 +77,7 @@ class Post extends yii\db\ActiveRecord {
 ```
 View *post/view.php*
 ```php
-use cranky4\ChangeLogBahavior\ListWidget as ChangeLogList;
+use antonyz89\ChangeLogBahavior\ListWidget as ChangeLogList;
 use app\models\Post;
 
 /**

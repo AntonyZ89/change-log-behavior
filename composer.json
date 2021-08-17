@@ -1,5 +1,5 @@
 {
-  "name": "cranky4/change-log-behavior",
+  "name": "antonyz89/change-log-behavior",
   "description": "Simple changelog behavior for yii2 models",
   "license": "MIT",
   "keywords": [
@@ -18,7 +18,7 @@
   "require-dev": {},
   "autoload": {
     "psr-4": {
-      "cranky4\\changeLogBehavior\\": "src"
+      "antonyz89\\changeLogBehavior\\": "src"
     }
   }
 }
