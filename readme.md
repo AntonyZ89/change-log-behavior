@@ -77,7 +77,7 @@ class Post extends yii\db\ActiveRecord {
 ```
 View *post/view.php*
 ```php
-use antonyz89\ChangeLogBahavior\ListWidget as ChangeLogList;
+use antonyz89\ChangeLogBehavior\ListWidget as ChangeLogList;
 use app\models\Post;
 
 /**
