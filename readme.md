@@ -69,12 +69,35 @@ class Post extends yii\db\ActiveRecord {
             [
                 'class' => ChangeLogBehavior::class,
                 'excludedAttributes' => ['created_at','updated_at'],
+                // (optional) - custom fields
+                'customFields' => [
+                    total => static function (self $model) {
+                        return $model->calculateTotal();
+                    }
+                ]
             ]
         ];
     }
-    
 }
 ```
+
+### Custom fields
+
+With custom fields, you can store additional values in a property called `custom_fields`. This feature is useful when you need to save values generated based on other fields or relations.
+
+
+How it works:
+
+* When finding a model, the custom field is activated to cache the current values of custom fields. Upon saving the model, the custom fields are regenerated to store both the before and after values.
+    ```json
+    {
+        "title": ["Hello World", "New Title"],
+        "custom_fields": {
+            "total": [50, 100]
+        }
+    }
+    ```
+
 View *post/view.php*
 ```php
 use antonyz89\ChangeLogBehavior\ListWidget as ChangeLogList;
