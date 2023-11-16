@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link http://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -123,14 +124,23 @@ class ListWidget extends Widget
                                         $val[1] = \Yii::$app->formatter->asDatetime($val[1]);
 
                                         $out .= ($fieldName . ': <span style="color:#ccc">'
-                                                . print_r($val[0], true) .
-                                                ' => </span>' . print_r($val[1], true)) . '<br>';
+                                            . print_r($val[0], true) .
+                                            ' => </span>' . print_r($val[1], true)) . '<br>';
                                     } else {
-                                        $out .= ($fieldName . ': <span style="color:#ccc">'
+                                        $render = function ($fieldName, $val) {
+                                            return ($fieldName . ': <span style="color:#ccc">'
                                                 . Html::encode(print_r($val[0], true)) .
                                                 ' => </span>' . Html::encode(print_r($val[1], true))) . '<br>';
-                                    }
+                                        };
 
+                                        if ($fieldName === 'custom_fields') {
+                                            foreach ($val as $key => $value) {
+                                                $out .= $render($key, $value);
+                                            }
+                                        } else {
+                                            $out .= $render($fieldName, $val);
+                                        }
+                                    }
                                 }
                             }
 
@@ -147,3 +157,4 @@ class ListWidget extends Widget
         ]);
     }
 }
+

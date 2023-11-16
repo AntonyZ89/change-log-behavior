@@ -26,9 +26,19 @@ class ChangeLogBehavior extends Behavior
     public $type = 'update';
 
     /**
+     * @var array
+     */
+    public $customFields = [];
+
+    /**
      * @return array
      */
     const DELETED = 'deleted';
+
+    /**
+     * @var array
+     */
+    protected $_cached_custom_fields = [];
 
     /**
      * @return array
@@ -36,6 +46,7 @@ class ChangeLogBehavior extends Behavior
     public function events()
     {
         return [
+            ActiveRecord::EVENT_AFTER_FIND => 'cacheCustomFields',
             ActiveRecord::EVENT_AFTER_UPDATE => 'addLog',
             ActiveRecord::EVENT_AFTER_INSERT => 'addLog',
             ActiveRecord::EVENT_BEFORE_DELETE => 'addDeleteLog',
@@ -66,7 +77,9 @@ class ChangeLogBehavior extends Behavior
                 $diff[$attrName] = [$attrVal, $newAttrVal];
             }
         }
+
         $diff = $this->applyExclude($diff);
+        $diff = $this->applyCustomFields($diff);
 
         if ($diff) {
             $diff = $this->owner->setChangelogLabels($diff);
@@ -135,4 +148,42 @@ class ChangeLogBehavior extends Behavior
         $logEvent->type = self::DELETED;
         $logEvent->save();
     }
+
+    public function applyCustomFields(array $diff)
+    {
+        if (empty($this->customFields)) {
+            return $diff;
+        }
+
+        $result = [];
+
+        $customFields = $this->computeCustomFields();;
+
+        foreach ($customFields as $key => $new) {
+            $old = $this->_cached_custom_fields[$key];
+
+            $result[$key] = [$old, $new];
+        }
+
+        $diff['custom_fields'] = $result;
+
+        return $diff;
+    }
+
+    public function computeCustomFields()
+    {
+        return array_map(function (callable $field) {
+            return call_user_func($field, $this->owner);
+        }, $this->customFields);
+    }
+
+    public function cacheCustomFields()
+    {
+        if ($this->customFields === null) {
+            return;
+        }
+
+        $this->_cached_custom_fields = $this->computeCustomFields();
+    }
 }
+
