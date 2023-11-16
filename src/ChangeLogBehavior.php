@@ -89,6 +89,13 @@ class ChangeLogBehavior extends Behavior
             $logEvent->type = $this->type;
             $logEvent->save();
         }
+
+        // reset cache
+        if (isset($diff['custom_fields'])) {
+            $this->_cached_custom_fields = array_map(function ($val) {
+                return $val[1];
+            }, $diff['custom_fields']);
+        }
     }
 
     /**
