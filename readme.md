@@ -47,7 +47,87 @@ its changes.
 $model->addCustomLog('hello world!', 'hello_type')
 ```
 
-### Example
+### Custom fields
+
+With custom fields, you can store additional values in a property called `custom_fields`. This feature is useful when you need to save values generated based on other fields or relations.
+
+
+How it works:
+
+* When finding a model, the custom field is activated to cache the current values of custom fields. Upon saving the model, the custom fields are regenerated to store both the before and after values.
+    ```json
+    {
+        "title": ["Hello World", "New Title"],
+        "custom_fields": {
+            "total": [50, 100]
+        }
+    }
+    ```
+
+* Auto cache custom fields
+    - By default `$autoCache` is `false` and the custom fields are not cached on trigger `ActiveRecord::EVENT_AFTER_FIND` to prevent performance issues.
+    - Call `cacheCustomFields()` to cache the custom fields manually.
+        ```php
+        class FooController extends Controller {
+            // ...
+
+            public function actionUpdate($id) {
+                $model = $this->findModel($id);
+                // cache custom fields manually
+                // [[cacheCustomFields()]] is a magic method that calls [[ChangeLogBehavior::cacheCustomFields()]]
+                $model->cacheCustomFields();
+
+                $modelChildren = array_map(function () {
+                    // imagine something cool here
+                }, $this->request->post());
+
+                foreach ($modelChildren as $modelChild) {
+                    $modelChild->parent_id = $model->id;
+                    $modelChild->save();
+                }
+
+                // on save the custom fields are computed again and saved if they changed
+                $model->save();
+            }
+        }
+        ```
+    - To enable `$autoCache` set it to `true` on behaviors and the custom fields will be cached on trigger `ActiveRecord::EVENT_AFTER_FIND`. But be careful.
+
+### Save data on delete
+
+By default the behavior doesn't save data on delete. Set `dataOnDelete` to `true` to save data on delete.
+
+```php
+/**
+ *  @inheritdoc
+ */
+public function behaviors()
+{
+    return [
+        [
+            'class' => ChangeLogBehavior::class,
+            'dataOnDelete' => true
+        ]
+    ];
+}
+```
+
+The result will be something like:
+
+
+```json
+{
+    "field_1": ["value", null],
+    "field_2": ["value", null],
+    "field_3": ["value", null],
+}
+```
+
+Last value is always `null`.
+
+`dataOndelete = true` also save custom fields.
+
+## Example
 
 Model *Post*
 ```php
@@ -69,6 +149,8 @@ class Post extends yii\db\ActiveRecord {
             [
                 'class' => ChangeLogBehavior::class,
                 'excludedAttributes' => ['created_at','updated_at'],
+                // (optional) autoCache is disabled by default
+                'autoCache' => false,
                 // (optional) - custom fields
                 'customFields' => [
                     total => static function (self $model) {
@@ -80,23 +162,6 @@ class Post extends yii\db\ActiveRecord {
     }
 }
 ```
-
-### Custom fields
-
-With custom fields, you can store additional values in a property called `custom_fields`. This feature is useful when you need to save values generated based on other fields or relations.
-
-
-How it works:
-
-* When finding a model, the custom field is activated to cache the current values of custom fields. Upon saving the model, the custom fields are regenerated to store both the before and after values.
-    ```json
-    {
-        "title": ["Hello World", "New Title"],
-        "custom_fields": {
-            "total": [50, 100]
-        }
-    }
-    ```
 
 View *post/view.php*
 ```php

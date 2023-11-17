@@ -31,6 +31,20 @@ class ChangeLogBehavior extends Behavior
     public $customFields = [];
 
     /**
+     * Auto cache custom fields on trigger `ActiveRecord::EVENT_AFTER_FIND`
+     *
+     * Be careful when using this, it can lead to performance issues
+     *
+     * @var bool
+     */
+    public $autoCache = false;
+
+    /**
+     * @var bool
+     */
+    public $dataOnDelete = false;
+
+    /**
      * @return array
      */
     const DELETED = 'deleted';
@@ -46,7 +60,11 @@ class ChangeLogBehavior extends Behavior
     public function events()
     {
         return [
-            ActiveRecord::EVENT_AFTER_FIND => 'cacheCustomFields',
+            ActiveRecord::EVENT_AFTER_FIND => function () {
+                if ($this->autoCache) {
+                    $this->cacheCustomFields();
+                }
+            },
             ActiveRecord::EVENT_AFTER_UPDATE => 'addLog',
             ActiveRecord::EVENT_AFTER_INSERT => 'addLog',
             ActiveRecord::EVENT_BEFORE_DELETE => 'addDeleteLog',
@@ -81,7 +99,7 @@ class ChangeLogBehavior extends Behavior
         $diff = $this->applyExclude($diff);
         $diff = $this->applyCustomFields($diff);
 
-        if ($diff) {
+        if (!empty($diff)) {
             $diff = $this->owner->setChangelogLabels($diff);
             $logEvent = new LogItem();
             $logEvent->relatedObject = $owner;
@@ -149,14 +167,36 @@ class ChangeLogBehavior extends Behavior
 
     public function addDeleteLog()
     {
+        /**
+         * @var ActiveRecord $owner
+         */
+        $owner = $this->owner;
+        $generateDiff = function () use ($owner) {
+            $diff = [];
+
+            foreach ($owner->attributes as $attrName => $attrVal) {
+                //avoid float compare
+                $attrVal = is_float($attrVal) ? StringHelper::floatToString($attrVal) : $attrVal;
+
+                $diff[$attrName] = [$attrVal, null];
+            }
+
+            $diff = $this->applyExclude($diff);
+            $diff = $this->applyCustomFields($diff, true);
+
+            $diff = $this->owner->setChangelogLabels($diff);
+
+            return $diff ?? '';
+        };
+
         $logEvent = new LogItem();
-        $logEvent->relatedObject = $this->owner;
-        $logEvent->data = '';
+        $logEvent->relatedObject = $owner;
+        $logEvent->data = $this->dataOnDelete ? $generateDiff() : '';
         $logEvent->type = self::DELETED;
         $logEvent->save();
     }
 
-    public function applyCustomFields(array $diff)
+    public function applyCustomFields(array $diff, bool $force = false)
     {
         if (empty($this->customFields)) {
             return $diff;
@@ -164,15 +204,19 @@ class ChangeLogBehavior extends Behavior
 
         $result = [];
 
-        $customFields = $this->computeCustomFields();;
+        $customFields = $this->computeCustomFields();
 
         foreach ($customFields as $key => $new) {
-            $old = $this->_cached_custom_fields[$key];
+            $old = $this->_cached_custom_fields[$key] ?? null;
 
-            $result[$key] = [$old, $new];
+            if ($force || $old != $new) {
+                $result[$key] = [$old, $new];
+            }
         }
 
-        $diff['custom_fields'] = $result;
+        if (!empty($result)) {
+            $diff['custom_fields'] = $result;
+        }
 
         return $diff;
     }
@@ -186,7 +230,7 @@ class ChangeLogBehavior extends Behavior
 
     public function cacheCustomFields()
     {
-        if ($this->customFields === null) {
+        if (empty($this->customFields)) {
             return;
         }
 
