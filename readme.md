@@ -51,6 +51,24 @@ $model->addCustomLog('hello world!', 'hello_type')
 
 With custom fields, you can store additional values in a property called `custom_fields`. This feature is useful when you need to save values generated based on other fields or relations.
 
+```php
+public function behaviors()
+{
+    return [
+        [
+            'class' => ChangeLogBehavior::class,
+            'autoCache' => true,
+            'customFields' => [
+                'total' => static function (self $model) {
+                    return $model->calculateTotal();
+                },
+                // or static function (self $model) { return $model->createdBy->name; }
+                'created_by' => 'createdBy.name'
+            ]
+        ]
+    ];
+}
+```
 
 How it works:
 
@@ -153,9 +171,11 @@ class Post extends yii\db\ActiveRecord {
                 'autoCache' => false,
                 // (optional) - custom fields
                 'customFields' => [
-                    total => static function (self $model) {
+                    'total' => static function (self $model) {
                         return $model->calculateTotal();
-                    }
+                    },
+                    // or static function (self $model) { return $model->createdBy->name; }
+                    'created_by' => 'createdBy.name'
                 ]
             ]
         ];

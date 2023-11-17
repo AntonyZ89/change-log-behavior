@@ -223,7 +223,20 @@ class ChangeLogBehavior extends Behavior
 
     public function computeCustomFields()
     {
-        return array_map(function (callable $field) {
+        return array_map(function ($field) {
+            if (is_string($field)) {
+                $object = $this->owner;
+
+                foreach (explode('.', $field) as $segment) {
+                    if (!is_object($object) || !isset($object->{$segment})) {
+                        return null;
+                    }
+                    $object = $object->{$segment};
+                }
+
+                return is_callable($object) ? $object() : $object;
+            }
+
             return call_user_func($field, $this->owner);
         }, $this->customFields);
     }
