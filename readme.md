@@ -145,6 +145,34 @@ Last value is always `null`.
 
 `dataOndelete = true` also save custom fields.
 
+## Parent Id
+
+Set a parent id to change log.
+
+This is useful to create a custom view for your changelog view.
+
+default: `null`, accept: `null` | `string` | `callable`
+
+```php
+public function behaviors()
+{
+    return [
+        [
+            'class' => ChangeLogBehavior::class,
+            // get `user_id` from model ($model->user_id)
+            'parentId' => 'user_id', 
+            // get `user_id` from model using static function
+            'parentId' => static functiobn (self $model) {
+                if ($model->type !== 'ADMIN')
+                    return $model->user_id;
+                }
+
+                return null;
+        ]
+    ];
+}
+```
+
 ## Example
 
 Model *Post*

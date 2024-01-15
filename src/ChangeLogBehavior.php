@@ -26,6 +26,11 @@ class ChangeLogBehavior extends Behavior
     public $type = 'update';
 
     /**
+     * @var string|null|callable
+     */
+    public $parentId = null;
+
+    /**
      * @var array
      */
     public $customFields = [];
@@ -100,9 +105,20 @@ class ChangeLogBehavior extends Behavior
         $diff = $this->applyCustomFields($diff);
 
         if (!empty($diff)) {
-            $diff = $this->owner->setChangelogLabels($diff);
+            $parentId = null;
+
+            if ($this->parentId) {
+                if (is_callable($this->parentId)) {
+                    $parentId = call_user_func($this->parentId, $owner);
+                } else {
+                    $parentId = $owner[$this->parentId];
+                }
+            }
+
+            $diff = $owner->setChangelogLabels($diff);
             $logEvent = new LogItem();
             $logEvent->relatedObject = $owner;
+            $logEvent->parentId = $parentId;
             $logEvent->data = $diff;
             $logEvent->type = $this->type;
             $logEvent->save();

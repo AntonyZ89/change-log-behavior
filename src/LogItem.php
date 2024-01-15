@@ -14,6 +14,7 @@ use Yii;
  * @property integer $id
  * @property string $relatedObjectType
  * @property integer $relatedObjectId
+ * @property integer|null $parentId
  * @property string $data
  * @property string $createdAt
  * @property string $type
@@ -64,7 +65,7 @@ class LogItem extends ActiveRecord
     public function rules()
     {
         return [
-            [['relatedObjectId', 'userId'], 'integer'],
+            [['relatedObjectId', 'userId', 'parentId'], 'integer'],
             [['module'], 'string'],
             [['createdAt', 'relatedObject', 'data'], 'safe'],
             [['relatedObjectType', 'type', 'hostname'], 'string', 'max' => 255],
@@ -85,6 +86,7 @@ class LogItem extends ActiveRecord
             'type' => 'Type',
             'module' => 'Module',
             'userId' => 'User ID',
+            'parentId' => 'Parent ID',
             'hostname' => 'Hostname',
         ];
     }
@@ -119,3 +121,4 @@ class LogItem extends ActiveRecord
         return parent::beforeSave($insert);
     }
 }
+
