@@ -112,8 +112,14 @@ class LogItem extends ActiveRecord
         }
 
         if ($this->relatedObject) {
+            $pk = $this->relatedObject->primaryKey;
+
+            if (is_array($pk)) {
+                $pk = json_encode($pk);
+            }
+
             $this->relatedObjectType = CompositeRelationHelper::resolveObjectType($this->relatedObject);
-            $this->relatedObjectId = $this->relatedObject->primaryKey;
+            $this->relatedObjectId = $pk;
         }
 
         $this->module = Yii::$app->id;
