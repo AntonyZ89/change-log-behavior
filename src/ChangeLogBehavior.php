@@ -223,9 +223,12 @@ class ChangeLogBehavior extends Behavior
         $customFields = $this->computeCustomFields();
 
         foreach ($customFields as $key => $new) {
+            $force_attr = substr($key, -1) === '!';
+            $key = $force_attr ? substr($key, 0, -1) : $key;
+
             $old = $this->_cached_custom_fields[$key] ?? null;
 
-            if ($force || $old != $new) {
+            if ($force || $force_attr || $old != $new) {
                 $result[$key] = [$old, $new];
             }
         }

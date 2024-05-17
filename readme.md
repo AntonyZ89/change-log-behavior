@@ -70,6 +70,28 @@ public function behaviors()
 }
 ```
 
+Use `!` after the field's name to force it to be saved even if it hasn't changed.
+
+```php
+public function behaviors()
+{
+    return [
+        [
+            'class' => ChangeLogBehavior::class,
+            'autoCache' => true,
+            'customFields' => [
+                'total' => static function (self $model) {
+                    return $model->calculateTotal();
+                },
+                // `user_id` will be registered even if it hasn't changed
+                'user_id!' => 'user.name',
+                'created_by' => 'createdBy.name'
+            ]
+        ]
+    ];
+}
+```
+
 How it works:
 
 * When finding a model, the custom field is activated to cache the current values of custom fields. Upon saving the model, the custom fields are regenerated to store both the before and after values.
