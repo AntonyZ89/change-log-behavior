@@ -22,6 +22,12 @@ use yii\helpers\Inflector;
  */
 class ListWidget extends Widget
 {
+
+    /**
+     * @var \yii\db\Connection|null
+     */
+    public $db = null;
+
     /**
      * @var ActiveRecord
      */
@@ -67,6 +73,7 @@ class ListWidget extends Widget
         // add conditions that should always apply here
         return new ActiveDataProvider([
             'query' => $query,
+            'db' => $this->db,
             'sort' => ['defaultOrder' => ['id' => SORT_ASC]],
             'pagination' => [
                 'pageSize' => 50,
@@ -157,4 +164,3 @@ class ListWidget extends Widget
         ]);
     }
 }
-

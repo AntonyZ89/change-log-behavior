@@ -7,6 +7,7 @@ use yii\behaviors\TimestampBehavior;
 use yii\console\Application;
 use yii\db\ActiveRecord;
 use Yii;
+use yii\db\Connection;
 
 /**
  * This is the model class for table "log_event".
@@ -37,12 +38,24 @@ class LogItem extends ActiveRecord
      */
     public $relatedObject;
 
+    private static $_db;
+
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
         return '{{%changelogs}}';
+    }
+
+    static public function getDb()
+    {
+        return self::$_db ?? parent::getDb();
+    }
+
+    public function setDb(?Connection $db)
+    {
+        self::$_db = $db;
     }
 
     /**
@@ -127,4 +140,3 @@ class LogItem extends ActiveRecord
         return parent::beforeSave($insert);
     }
 }
-

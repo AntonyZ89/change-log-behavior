@@ -21,6 +21,11 @@ class ChangeLogBehavior extends Behavior
     public $excludedAttributes = [];
 
     /**
+     * @var \yii\db\Connection|null
+     */
+    public $db = null;
+
+    /**
      * @var string
      */
     public $type = 'update';
@@ -116,7 +121,7 @@ class ChangeLogBehavior extends Behavior
             }
 
             $diff = $owner->setChangelogLabels($diff);
-            $logEvent = new LogItem();
+            $logEvent = new LogItem(['db' => $this->db]);
             $logEvent->relatedObject = $owner;
             $logEvent->parentId = $parentId;
             $logEvent->data = $diff;
@@ -145,7 +150,7 @@ class ChangeLogBehavior extends Behavior
             $this->setType($type);
         }
 
-        $logEvent = new LogItem();
+        $logEvent = new LogItem(['db' => $this->db]);
         $logEvent->relatedObject = $this->owner;
         $logEvent->data = $data;
         $logEvent->type = $this->type;
@@ -205,7 +210,7 @@ class ChangeLogBehavior extends Behavior
             return $diff ?? '';
         };
 
-        $logEvent = new LogItem();
+        $logEvent = new LogItem(['db' => $this->db]);
         $logEvent->relatedObject = $owner;
         $logEvent->data = $this->dataOnDelete ? $generateDiff() : '';
         $logEvent->type = self::DELETED;
