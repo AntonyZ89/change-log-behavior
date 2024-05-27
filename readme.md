@@ -25,6 +25,7 @@ public function behaviors()
         ...
         [
             'class' => ChangeLogBehavior::className(),
+            'db' => Yii::$app->other_db, # optional (default is the same as Yii::$app->db)
             'excludedAttributes' => ['updated_at'],
         ],
         ...
@@ -253,6 +254,7 @@ echo DetailView::widget([
 ]);
 
 echo ChangeLogList::widget([
+    'db' => Yii::$app->other_db, # optional (default is the same as Yii::$app->db)
     'model' => $model,
 ]);
 
